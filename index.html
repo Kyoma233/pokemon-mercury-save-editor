@@ -586,7 +586,7 @@ const PICKERS={
   item:()=>({title:'选择道具',names:IT,extra:i=>pocketLabel(pocketOfItem(i))}),
   move:()=>({title:'选择招式',names:MV,extra:i=>''}),
 };
-const PICK_LIMIT=300;      /* 一次最多渲染多少条匹配项（继续输入可缩小范围） */
+const PICK_LIMIT=0;        /* 0 = 全部列出（不截断） */
 let PK=null;
 function pickName(kind,i){return kind==='species'?speciesName(i):kind==='item'?itemName(i):moveName(i);}
 function closePicker(){const p=$('#picker');if(p){p.style.display='none';p.innerHTML='';}PK=null;}
@@ -599,9 +599,9 @@ function openPicker(kind,target){
   const render=kw=>{
     const k=(kw||'').trim().toLowerCase();
     const hit=all.filter(r=>!k||String(r.i)===k||r.n.toLowerCase().indexOf(k)>=0);
-    const out=hit.slice(0,PICK_LIMIT);
+    const out=(PICK_LIMIT>0)?hit.slice(0,PICK_LIMIT):hit;   /* 全部列出 */
     return `<div class="hint" style="margin-bottom:6px">共 ${all.length} 项；匹配 ${hit.length} 项`
-      +(hit.length>out.length?`，只列出前 ${out.length} 条，继续输入以缩小范围`:'')+`</div>`
+      +(k?`（筛选：${esc(kw)}）`:'（已全部列出，可用上方筛选缩小范围）')+`</div>`
       +out.map(r=>`<div class="pickrow" data-act="pickdo" data-i="${r.i}"><b>${r.i}</b><span>${esc(r.n)}</span>`
       +(c.extra&&c.extra(r.i)?`<span class="hint">${esc(c.extra(r.i))}</span>`:'')+`</div>`).join('');
   };
